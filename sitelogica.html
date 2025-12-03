@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelagem de Reservas: Lógica Computacional</title>
+
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dracula.min.css" rel="stylesheet" />
+    
+    <style>
+        :root {
+            --cor-texto: #333;
+            --cor-titulo: #1A237E; /* Azul escuro vibrante */
+            --cor-destaque: #00BCD4; /* Ciano claro (Material Design) */
+            --cor-fundo-pag: #fafafa; /* Cinza muito claro */
+            --cor-fundo-bloco: #f0f4f7; /* Azul/cinza muito suave */
+            --cor-fundo-logica: #E3F2FD; /* Azul claríssimo para a lógica */
+            --largura-menu: 280px;
+            --sombra-card: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif; /* Alterado para Roboto, mais limpo */
+            line-height: 1.6;
+            color: var(--cor-texto);
+            margin: 0;
+            background-color: var(--cor-fundo-pag);
+            display: flex;
+        }
+
+        /* --- NAVEGAÇÃO LATERAL --- */
+        nav {
+            width: var(--largura-menu);
+            background: #263238; /* Cinza chumbo mais moderno */
+            color: #eceff1;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            padding: 30px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s;
+        }
+
+        nav h3 {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: #CFD8DC; /* Cinza claro */
+            padding: 0 20px;
+        }
+
+        nav ul { list-style: none; padding: 0; }
+        
+        nav li a {
+            display: flex; /* Para alinhar ícones se usados */
+            align-items: center;
+            padding: 14px 25px;
+            color: #B0BEC5;
+            text-decoration: none;
+            transition: background 0.3s, color 0.3s, border-left 0.3s;
+            font-size: 0.95rem;
+            border-left: 5px solid transparent;
+        }
+
+        nav li a:hover, nav li a.active {
+            background: #37474F; /* Um tom um pouco mais claro no hover */
+            color: white;
+            border-left: 5px solid var(--cor-destaque);
+        }
+
+        /* --- ÁREA PRINCIPAL --- */
+        main {
+            margin-left: var(--largura-menu);
+            padding: 50px 80px;
+            width: 100%;
+            max-width: 1100px; /* Aumenta a largura para mais conteúdo */
+            transition: margin-left 0.3s;
+        }
+
+        header {
+            margin-bottom: 60px;
+            border-bottom: 3px solid var(--cor-destaque); /* Linha de destaque mais proeminente */
+            padding-bottom: 25px;
+        }
+
+        h1 { 
+            margin: 0; 
+            font-size: 2.8rem; 
+            color: var(--cor-titulo); 
+            font-weight: 700;
+        }
+        header p {
+            font-size: 1.2rem;
+            color: #616161;
+            margin-top: 5px;
+        }
+        
+        h2 { 
+            color: var(--cor-titulo); 
+            margin-top: 50px; 
+            border-left: 6px solid var(--cor-destaque); 
+            padding-left: 15px; 
+            font-size: 1.8rem;
+        }
+        h3 { 
+            color: var(--cor-titulo); 
+            margin-top: 35px; 
+            font-weight: 700; 
+            font-size: 1.3rem;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #cfd8dc;
+        }
+
+        /* --- ESTILO DAS FÓRMULAS E REGRAS --- */
+        .caixa-logica {
+            background-color: var(--cor-fundo-logica); /* Fundo azul claro */
+            border-left: 6px solid #4FC3F7; /* Azul de destaque */
+            padding: 20px 25px;
+            margin: 20px 0;
+            border-radius: 8px; /* Borda arredondada */
+            font-family: 'Fira Code', monospace; 
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: pre-wrap; /* Garante quebras de linha em dispositivos menores */
+        }
+
+        .simbolo { 
+            color: #D32F2F; /* Vermelho escuro forte */
+            font-weight: bold; 
+            margin: 0 5px; 
+        }
+        
+        /* Tabelas de Prova */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 25px 0; 
+            box-shadow: var(--sombra-card); 
+            border-radius: 8px; 
+            overflow: hidden; /* Para garantir que a borda arredondada se aplique */
+        }
+        th, td { 
+            padding: 15px; 
+            border: none; /* Remove bordas internas para um look mais clean */
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left; 
+        }
+        th { 
+            background-color: #ECEFF1; 
+            font-weight: 700; 
+            color: var(--cor-titulo); 
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        tr:last-child td { border-bottom: none; } /* Remove borda do último item */
+        
+        /* Código Python */
+        .code-container { 
+            position: relative; 
+            margin: 30px 0; 
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--sombra-card);
+        }
+        /* Ajuste fino para a área de código PrismJS */
+        pre[class*="language-"] {
+            margin: 0 !important; /* PrismJS adiciona margens quebram o layout */
+            padding: 20px !important;
+        }
+
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--cor-destaque); color: #fff;
+            border: none;
+            padding: 8px 12px; border-radius: 4px; cursor: pointer;
+            font-size: 0.9rem; z-index: 10;
+            opacity: 0.9;
+            transition: opacity 0.2s, background 0.2s;
+        }
+        .copy-btn:hover { 
+            background: #00897B; /* Tom mais escuro no hover */
+            opacity: 1; 
+        }
+
+        /* Listas */
+        ul { padding-left: 20px; list-style-type: none; }
+        li { margin-bottom: 10px; position: relative; padding-left: 15px; }
+        li::before { /* Bolinhas customizadas */
+            content: '•'; 
+            color: var(--cor-destaque); 
+            font-weight: bold; 
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        /* Diagrama Mermaid */
+        .mermaid {
+            background-color: var(--cor-fundo-bloco);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center; /* Centraliza o diagrama */
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 900px) {
+            nav { 
+                width: 100%; 
+                height: auto; 
+                position: relative; 
+                padding: 10px 0; 
+                box-shadow: none;
+            }
+            nav h3 { display: none; }
+            nav ul { 
+                display: flex; 
+                overflow-x: auto; 
+                white-space: nowrap;
+                padding: 0 10px;
+            }
+            nav li { flex: 0 0 auto; margin-right: 5px; }
+            nav li a { border-left: none; border-bottom: 3px solid transparent; padding: 10px 15px; }
+            nav li a:hover, nav li a.active { border-left: none; border-bottom: 3px solid var(--cor-destaque); }
+            
+            main { 
+                margin-left: 0; 
+                padding: 30px 20px; 
+            }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+        }
+    </style>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+
+<nav>
+    <h3>Roteiro de Lógica</h3>
+    <ul>
+        <li><a href="#etapa1">1. O Problema</a></li>
+        <li><a href="#etapa2">2. Lógica Proposicional</a></li>
+        <li><a href="#etapa3">3. Dedução Natural</a></li>
+        <li><a href="#etapa4">4. Resolução</a></li>
+        <li><a href="#etapa5">5. Predicados</a></li>
+        <li><a href="#etapa6">6. Semântica</a></li>
+        <li><a href="#etapa7">7. Unificação</a></li>
+        <li><a href="#etapa8">8. Implementação</a></li>
+        <li><a href="#etapa9">9. Conclusão</a></li>
+    </ul>
+</nav>
+
+<main>
+    <header>
+        <h1>Sistema de Reservas</h1>
+        <p>Modelagem Formal e Implementação Computacional</p>
+	<p>Por Gustavo Leandro Almeida de Andrade</p>
+    </header>
+
+    <section id="etapa1">
+        <h2>1. Descrição e Modelagem do Problema</h2>
+        <h3>Cenário</h3>
+        <p>Uma pequena biblioteca possui várias salas de estudo que podem ser reservadas por alunos. Cada reserva possui: usuário, sala, data e intervalo horário (início/fim).</p>
+        
+        <h3>Regras Principais</h3>
+        <ul>
+            <li><strong>Não-sobreposição:</strong> Uma sala não pode ter duas reservas com horários que se cruzem.</li>
+            <li><strong>Duração máxima:</strong> Usuários só podem reservar por no máximo 3 horas por vez.</li>
+            <li><strong>Capacidade:</strong> O número de pessoas não pode exceder a capacidade da sala.</li>
+            <li><strong>Acesso:</strong> Reservas limitadas a usuários cadastrados.</li>
+        </ul>
+
+        <h3>Entidades e Restrições</h3>
+        <ul>
+            <li><code>Sala(salaID, capacidade)</code></li>
+            <li><code>Usuário(userID, tipo)</code></li>
+            <li><code>Reserva(resID, userID, salaID, data, inicio, fim, nPessoas)</code></li>
+        </ul>
+        <p><strong>Versão Formal (Resumo):</strong></p>
+        <div class="caixa-logica">
+            Restrição: &not; ( (r1.data = r2.data) &and; overlap(r1, r2) )<br>
+            Duração: fim - inicio &le; 3h<br>
+            Capacidade: nPessoas &le; Sala.capacidade
+        </div>
+    </section>
+
+    <section id="etapa2">
+        <h2>2. Lógica Proposicional</h2>
+        
+        <h3>Proposições</h3>
+        <ul>
+            <li><strong>p:</strong> Reserva R1 e Reserva R2 estão na mesma sala.</li>
+            <li><strong>q:</strong> Os horários de R1 e R2 se sobrepõem.</li>
+            <li><strong>r:</strong> Há conflito entre R1 e R2.</li>
+            <li><strong>s:</strong> Duração de R é &le; 3h.</li>
+            <li><strong>t:</strong> Reserva R é válida.</li>
+            <li><strong>c:</strong> Capacidade está ok.</li>
+        </ul>
+
+        <h3>Fórmulas Bem Formadas (FBFs)</h3>
+        <p>Definição de conflito (se mesma sala E sobrepõe, então conflito):</p>
+        <div class="caixa-logica">
+            r &harr; (p &and; q)
+        </div>
+        
+        <p>Definição de validade (válida se N&atilde;o tem conflito E dura&ccedil;&atilde;o ok E capacidade ok):</p>
+        <div class="caixa-logica">
+            t &harr; (&not; r &and; s &and; c)
+        </div>
+
+        <h3>Simplificações e Análise</h3>
+        <p>Transformando a definição de validade em implicações lógicas:</p>
+        <div class="caixa-logica">
+            (t &rarr; &not; r) &and; (t &rarr; s) &and; (t &rarr; c) &and; (&lpar;&not; r &and; s &and; c&rpar; &rarr; t)
+        </div>
+        <p><strong>Análise Semântica:</strong> A fórmula (p &and; q) &rarr; r é satisfatível. Ela estabelece que a co-ocorrência de local e tempo implica conflito.</p>
+    </section>
+
+    <section id="etapa3">
+        <h2>3. Dedução Natural</h2>
+
+        <h3>Exemplo 1: Provando que há conflito (r)</h3>
+        <p><strong>Premissas:</strong> (p &and; q) &rarr; r <em>e</em> (p &and; q)</p>
+        <table>
+            <tr><th>Passo</th><th>Fórmula</th><th>Justificativa</th></tr>
+            <tr><td>1</td><td>p &and; q</td><td>Premissa</td></tr>
+            <tr><td>2</td><td>(p &and; q) &rarr; r</td><td>Premissa</td></tr>
+            <tr><td>3</td><td>p</td><td>Eliminação da Conjunção (de 1)</td></tr>
+            <tr><td>4</td><td>q</td><td>Eliminação da Conjunção (de 1)</td></tr>
+            <tr><td>5</td><td>r</td><td>Modus Ponens (de 1 e 2)</td></tr>
+        </table>
+
+        <h3>Exemplo 2: Válida implica sem Conflito</h3>
+        <p><strong>Objetivo:</strong> Provar t &rarr; &not; r a partir da definição de validade.</p>
+        <table>
+            <tr><th>Passo</th><th>Fórmula</th><th>Justificativa</th></tr>
+            <tr><td>1</td><td>t &harr; (&not; r &and; s &and; c)</td><td>Premissa (Definição)</td></tr>
+            <tr><td>2</td><td>t &rarr; (&not; r &and; s &and; c)</td><td>Eliminação da Bicondicional (de 1)</td></tr>
+            <tr><td>3</td><td>t</td><td>Hipótese (Supor que é válida)</td></tr>
+            <tr><td>4</td><td>&not; r &and; s &and; c</td><td>Modus Ponens (de 2 e 3)</td></tr>
+            <tr><td>5</td><td>&not; r</td><td>Eliminação da Conjunção (de 4)</td></tr>
+            <tr><td>6</td><td>t &rarr; &not; r</td><td>Introdução da Implicação (fecha 3-5)</td></tr>
+        </table>
+    </section>
+
+    <section id="etapa4">
+        <h2>4. Resolução Proposicional</h2>
+        
+        <h3>Conversão para CNF (Cláusulas)</h3>
+        <p>Da fórmula de validade t↔(¬r∧s∧c), extraímos as cláusulas:</p>
+        <div class="caixa-logica">
+            1. &not; t &or; &not; r &nbsp;&nbsp;(Se válida, n&atilde;o tem conflito)<br>
+            2. &not; t &or; s  &nbsp;&nbsp;&nbsp;(Se válida, dura&ccedil;&atilde;o ok)<br>
+            3. &not; t &or; c  &nbsp;&nbsp;&nbsp;(Se válida, capacidade ok)<br>
+            4. r &or; &not; s &or; &not; c &or; t
+        </div>
+
+        <h3>Prova por Resolução (Refutação)</h3>
+        <p>Vamos supor que temos uma reserva válida (t) E que temos conflito (r). Isso deve gerar erro.</p>
+        <div class="caixa-logica">
+            Base: { &not; t &or; &not; r, t, r }<br>
+            --------------------------<br>
+            1. &not; t &or; &not; r &nbsp;&nbsp;&nbsp;(Cl&aacute;usula)<br>
+            2. t &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Fato)<br>
+            3. r &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Fato)<br>
+            4. &not; r &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Resolu&ccedil;&atilde;o de 1 e 2)<br>
+            5. &perp; &nbsp;&nbsp;(Contradi&ccedil;&atilde;o entre 3 e 4)
+        </div>
+    </section>
+
+    <section id="etapa5">
+        <h2>5. Lógica de Predicados (Primeira Ordem)</h2>
+        
+        <h3>Predicados e Variáveis</h3>
+        <p>Aqui formalizamos usando variáveis para generalizar as regras para qualquer reserva.</p>
+        <ul>
+            <li><code>Sala(s)</code>, <code>Usuario(u)</code></li>
+            <li><code>Reserva(r, u, s, d, ini, fim, n)</code></li>
+            <li>Função: <code>duracao(ini, fim)</code></li>
+        </ul>
+
+        <h3>Regras Formais</h3>
+        <p><strong>Não-sobreposição (Regra Universal):</strong></p>
+        <div class="caixa-logica">
+            &forall;r1 &forall;r2 (Reserva(r1...) &and; Reserva(r2...) &and; Overlap(t1...t4) &rarr; r1 = r2)
+        </div>
+        <p><em>(Ou seja: se reservam a mesma coisa na mesma hora, devem ser a mesma reserva, senão é conflito).</em></p>
+
+        <p><strong>Duração Máxima:</strong></p>
+        <div class="caixa-logica">
+            &forall;r (Reserva(r...) &rarr; duracao(ini, fim) &le; 3)
+        </div>
+    </section>
+
+    <section id="etapa6">
+        <h2>6. Semântica de Predicados</h2>
+        <p><strong>Definição de Modelo:</strong> Um modelo M = (D, I) representa a "realidade" do sistema.</p>
+        <ul>
+            <li><strong>Domínio (D):</strong> Conjunto de salas (S1, S2...), usuários e reservas concretas.</li>
+            <li><strong>Interpretação (I):</strong> Define o que é verdade. Exemplo: se no mundo real a reserva R1 cruza com R2, então <code>Overlap(R1, R2)</code> é Verdadeiro.</li>
+        </ul>
+        <p><strong>Verificação:</strong> Um modelo onde existem duas reservas diferentes na mesma sala com horários iguais é um modelo que viola a regra de não-sobreposição (insatisfatível perante as regras).</p>
+    </section>
+
+    <section id="etapa7">
+        <h2>7. Substituição e Unificação</h2>
+        
+        <h3>Exemplo de Substituição</h3>
+        <p>Substituir a variável genérica <code>u</code> pela constante <code>alice</code>.</p>
+
+        <h3>Exemplo de Unificação</h3>
+        <p>O processo de casar uma regra geral com um dado específico.</p>
+        <div class="caixa-logica">
+            <strong>Termo 1:</strong> Reserva(r, X, s, d, ini, fim, n)<br>
+            <strong>Termo 2:</strong> Reserva(R1, alice, S1, '2025-12-05', '10:00', '12:00', 3)<br>
+            <br>
+            <strong>Resultado (Substituição &theta;):</strong> { X/alice, r/R1, s/S1, d/'2025-12-05', ... }
+        </div>
+    </section>
+
+    <section id="etapa8">
+        <h2>8. Parte Computacional</h2>
+        <p>Abaixo, o código em Python que implementa a verificação automática das regras lógicas discutidas (conflito, capacidade e duração).</p>
+
+        <div class="code-container">
+            <button class="copy-btn" onclick="copiarCodigo()">Copiar Código</button>
+<pre><code id="codigo-python" class="language-python">
+# reservas_check.py
+from datetime import datetime, timedelta
+
+# Representação simples: lista de dicionários (Fatos)
+reservas = [
+    {"id":"R1","user":"alice","sala":"S1","data":"2025-12-05","ini":"10:00","fim":"12:00","n":3},
+    {"id":"R2","user":"bob","sala":"S1","data":"2025-12-05","ini":"11:00","fim":"13:00","n":2},
+    {"id":"R3","user":"carol","sala":"S2","data":"2025-12-05","ini":"09:00","fim":"10:00","n":1},
+]
+
+salas = {"S1": 4, "S2": 2}
+
+def parse_time(t): 
+    return datetime.strptime(t, "%H:%M")
+
+def duracao_horas(ini,fim):
+    return (parse_time(fim)-parse_time(ini)).total_seconds()/3600
+
+def overlap(r1, r2):
+    # Verifica mesmo dia e mesma sala
+    if r1["data"] != r2["data"] or r1["sala"] != r2["sala"]:
+        return False
+    # Lógica de intervalo: (InicioA < FimB) e (InicioB < FimA)
+    a1, b1 = parse_time(r1["ini"]), parse_time(r1["fim"])
+    a2, b2 = parse_time(r2["ini"]), parse_time(r2["fim"])
+    return (a1 < b2) and (a2 < b1)
+
+def check_reservas(reservas, salas):
+    erros = []
+    
+    # 1. Verificação de Propriedades Individuais
+    for r in reservas:
+        # Regra: Duração <= 3h
+        if duracao_horas(r["ini"], r["fim"]) > 3:
+            erros.append(f"Duração >3h: {r['id']}")
+        # Regra: Capacidade
+        if r["n"] > salas.get(r["sala"], 0):
+            erros.append(f"Capacidade excedida: {r['id']}")
+
+    # 2. Verificação de Conflitos (Pares)
+    for i in range(len(reservas)):
+        for j in range(i+1, len(reservas)):
+            if overlap(reservas[i], reservas[j]):
+                erros.append(f"Conflito: {reservas[i]['id']} vs {reservas[j]['id']}")
+                
+    return erros
+
+if __name__ == "__main__":
+    print("--- Verificação Automática ---")
+    for e in check_reservas(reservas, salas):
+        print(e)
+</code></pre>
+        </div>
+
+        <h3>Autômato (Validador de Horário)</h3>
+        <p>Um autômato finito (AFD) que reconhece o padrão de horário HH:MM válido (00:00 a 23:59).</p>
+        
+        
+        <div class="mermaid">
+        graph LR
+            I((Início))
+            H1((0-1))
+            H2((2))
+            SEP(":")
+            M1((0-5))
+            M2((0-9))
+            F(((Fim)))
+
+            I -->|0,1| H1
+            H1 -->|0..9| SEP
+            I -->|2| H2
+            H2 -->|0..3| SEP
+            SEP -->|0..5| M1
+            M1 -->|0..9| F
+            
+            style F fill:#00BCD4,stroke:#1A237E,stroke-width:2px
+            style I fill:#B0BEC5,stroke:#263238
+        </div>
+    </section>
+
+    <section id="etapa9">
+        <h2>9. Conclusões e Aplicações</h2>
+        <ul>
+            <li><strong>Conexão:</strong> A modelagem lógica permite detectar inconsistências que um sistema mal projetado poderia deixar passar (como reservas duplicadas).</li>
+            <li><strong>Benefícios:</strong> Clareza das regras de negócio, possibilidade de verificação automática e provas formais de correção antes mesmo de programar.</li>
+            <li><strong>Limitações:</strong> Simplificações temporais (neste modelo usamos horas exatas) e complexidade ao escalar para muitas reservas (comparação par-a-par).</li>
+            <li><strong>Melhorias:</strong> Incorporar lógica temporal mais poderosa e integração com banco de dados real (SQL) ou Solvers (Prolog/SAT).</li>
+        </ul>
+    </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+<script>
+    function copiarCodigo() {
+        const codigo = document.getElementById('codigo-python').innerText;
+        navigator.clipboard.writeText(codigo).then(() => {
+            alert("Código copiado para a área de transferência!");
+        }).catch(err => {
+            alert("Erro ao copiar. Selecione manualmente.");
+        });
+    }
+
+    // Adiciona a classe 'active' ao link de navegação da seção atual
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav ul li a');
+
+        function highlightNav() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 100) { // Offset de 100px
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', highlightNav);
+        highlightNav(); // Chama na carga para definir a primeira seção
+    });
+</script>
+
+</body>
+</html>
